@@ -1,0 +1,33 @@
+{
+    "name": "vsf-moysklad-indexer",
+    "version": "1.0.0",
+    "description": "Vuestorefront Moysklad Indexer",
+    "main": "index.js",
+    "dependencies": {
+        "axios": "^0.19.2",
+        "dotenv": "^8.2.0",
+        "isomorphic-fetch": "^2.2.1",
+        "moysklad": "^0.7.2",
+        "moysklad-extension-queue": "^0.2.0",
+        "node-fetch": "^2.6.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "start": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/egor-pisarev/vsf-moysklad-indexer.git"
+    },
+    "keywords": [
+        "Vuestorefront",
+        "Moysklad"
+    ],
+    "author": "Egor Pisarev",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/egor-pisarev/vsf-moysklad-indexer/issues"
+    },
+    "homepage": "https://github.com/egor-pisarev/vsf-moysklad-indexer#readme"
+}
