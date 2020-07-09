@@ -4,12 +4,23 @@
     "description": "Vuestorefront Moysklad Indexer",
     "main": "index.js",
     "dependencies": {
+        "@sindresorhus/slugify": "^1.0.0",
+        "async-redis": "^1.1.7",
+        "await-fs": "^1.0.0",
         "axios": "^0.19.2",
+        "axios-rate-limit": "^1.2.1",
         "dotenv": "^8.2.0",
+        "elasticsearch": "^14.2.2",
+        "file-saver": "^2.0.2",
+        "image-downloader": "^4.0.1",
         "isomorphic-fetch": "^2.2.1",
+        "jsonfile": "^6.0.1",
+        "lodash": "^4.17.17",
         "moysklad": "^0.7.2",
         "moysklad-extension-queue": "^0.2.0",
-        "node-fetch": "^2.6.0"
+        "node-fetch": "^2.6.0",
+        "redis": "^3.0.2",
+        "winston": "^3.3.3"
     },
     "devDependencies": {},
     "scripts": {

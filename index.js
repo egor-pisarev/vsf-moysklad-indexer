@@ -1,19 +1,6 @@
-require('dotenv').config()
+// require('./src').indexer()
 
-const MoyskladCore = require('moysklad')
-const nodeFetch = require('node-fetch')
-const MoyskladQueueExtension = require('moysklad-extension-queue')
- 
-const Moysklad = MoyskladCore.compose(MoyskladQueueExtension)
- 
-const ms = Moysklad({
-  queue: true,
-  fetch: nodeFetch
-})
+const Ms = require('./src/ms')
+const ms = new Ms({config: {pageSize: 25}})
 
-const indexer = async () => {
-  const products = await ms.GET(['entity', 'product'])
-  console.log(products)
-}
-
-indexer()
+ms.test().then(r => {})
