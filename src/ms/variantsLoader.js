@@ -57,15 +57,17 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
   const parseStock = (row) => {
 
     if (stocks[row.code]) {
-      products[row.product.id].stock.qty += stocks[row.code].stock
+      products[row.product.id].qty += stocks[row.code].stock
     }
 
-    if (products[row.product.id].stock.qty > 0) {
+    if (products[row.product.id].qty > 0) {
       products[row.product.id].stock.is_in_stock = true
     }
 
     addProductsCountToCategory(row, stocks[row.code] ? stocks[row.code].stock : 0)
   }
+
+  const nowDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 
   const parseGeneralData = async (row, images) => {
     let data = {
@@ -74,18 +76,43 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
       sku: row.code,
       price: row.salePrices.value,
       type_id: 'configurable',
-      status: 1
+      status: 1,
+      minimum: 1,
+      url_path: slugify(row.name),
+      created_at: nowDate,
+      updated_at: nowDate,
+      length: 0,
+      width: 0,
+      height: 0,
+      weight: 0,
+      weight_class: "кг",
+      length_class: "см",
+      tier_prices: []
     }
 
     return {...data, ...parsePrices(row), ...await parseImages(images)}
   }
 
   const parsePrices = (row) => {
-    const salePrice = row.salePrices.find(price => price.priceType.name === 'Цена продажи')
-    const specialPrice = row.salePrices.find(price => price.priceType.name === 'Цена со скидкой')
+
+    let salePrice = row.salePrices.find(price => price.priceType.name === 'Цена продажи')
+    let specialPrice = row.salePrices.find(price => price.priceType.name === 'Цена со скидкой')
+
+    salePrice = salePrice ? salePrice.value : 0
+    specialPrice = specialPrice ? specialPrice.value : 0
+
     return {
-      price: salePrice ? salePrice.value : 0,
-      special_price: specialPrice ? specialPrice.value : 0
+      price: salePrice,
+      special_price: specialPrice,
+      final_price: specialPrice ? specialPrice : salePrice,
+      priceInclTax: specialPrice ? specialPrice : salePrice,
+      priceTax: 0,
+      originalPrice: salePrice,
+      originalPriceInclTax: salePrice,
+      specialPriceInclTax: specialPrice,
+      specialPriceTax: 0,
+      regular_price: salePrice,
+      marketPrice: 0,
     }
   }
 
@@ -131,7 +158,8 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
     }
     return {
       media_gallery,
-      image
+      image,
+      thumbnail: image
     }
   }
 
@@ -142,23 +170,25 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
   }
 
   const addNewProduct = async (row) => {
-    let p = await parseGeneralData(row, row.product.images)
-    p.configurable_children = []
-    p.configurable_options = []
-    p.type_id = 'configurable'
-    p.category_ids = []
-    p.category = []
-    p.visibility = 4
-    p.stock = {
-      is_in_stock: false,
-      qty: 0
+    let product = await parseGeneralData(row, row.product.images)
+
+    product.configurable_children = []
+    product.configurable_options = []
+    product.type_id = 'configurable'
+    product.category_ids = []
+    product.category = []
+    product.visibility = 4
+    product.qty = 0
+    product.tax_class_id = 0
+    product.stock = {
+      is_in_stock: false
     }
 
     if (row.product.pathName.length > 0) {
       if (indexedRows[row.product.pathName]) {
-        p.category_ids.push(indexedRows[row.product.pathName].id)
+        product.category_ids.push(indexedRows[row.product.pathName].id)
         if (categories[indexedRows[row.product.pathName].id]) {
-          p.category.push({
+          product.category.push({
             category_id: categories[indexedRows[row.product.pathName].id].id,
             name: categories[indexedRows[row.product.pathName].id].name,
             slug: categories[indexedRows[row.product.pathName].id].slug,
@@ -173,7 +203,7 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
     }
 
     currentProductId = row.product.id
-    return p
+    return product
   }
 
   const addCountToCategory = (parentId, count) => {

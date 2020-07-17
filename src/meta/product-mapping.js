@@ -21,10 +21,10 @@ module.exports = (indexName) => {
         status: {type: "integer"},
         weight: {type: "integer"},
         visibility: {type: "integer"},
+        qty: {type: "integer"},
         stock: {
           properties: {
             is_in_stock: {type: 'boolean'},
-            qty: {type: "integer"}
           }
         },
         created_at: {
