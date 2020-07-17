@@ -1,6 +1,2 @@
-// require('./src').indexer()
-
-const Ms = require('./src/ms')
-const ms = new Ms({config: {pageSize: 25}})
-
-ms.test().then(r => {})
+//require('./src').purge().then(r => require('./src').indexer()).then(r => console.log(r))
+require('./src').indexer().then(r => console.log('Ready'))

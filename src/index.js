@@ -1,6 +1,6 @@
 const config = require('../config.json')
-const Ms = require('./ms')
-const api = new Ms({config})
+
+const parser = require('./ms/parser')
 
 const BasicImporter = require('./importers/basic')
 
@@ -25,7 +25,7 @@ let client = new es.Client({
 })
 
 function showWelcomeMsg() {
-    console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA.updated)
+    console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA?INDEX_META_DATA.updated:``)
 }
 
 async function readIndexMeta() {
@@ -119,27 +119,19 @@ async function storeResult({result, entityType}) {
  * @param {String} entityType
  * @param {Object} importer
  */
-async function importListOf({entityType}) {
-
-    let loadMore = true
-    let page = 1
-
-    while (loadMore) {
-
-        console.log(`*** Getting objects list for ${entityType} page ${page}`)
-
-        let {items, loadMore} = await api[entityType]({page})
-
-        items.forEach(async (result) => await storeResult({result, entityType}))
-        loadMore = false
-        page++
+async function importListOf({entityType, entities}) {
+    console.log('Import ', entityType)
+    for(let i in entities){
+        await storeResult({result: entities[i], entityType})
     }
 }
 
 const purge = async () => {
-    client.indices.delete({index: '*'})
-    fs.unlink(INDEX_META_PATH, () => {
-        console.log('Meta file removed')
+    return new Promise((resolve, reject) => {
+        client.indices.delete({index: '*'}).then(r => fs.unlink(INDEX_META_PATH, () => {
+            console.log('Meta file removed')
+            resolve()
+        }))
     })
 }
 
@@ -148,7 +140,19 @@ const indexer = async () => {
     await readIndexMeta()
     showWelcomeMsg()
     await recreateTempIndex()
-    await importListOf({entityType: 'product'})
+
+    console.log('Parse API')
+    
+    const entities = await parser()
+
+    console.log('Import entities')
+
+    for(let entityType in entities) {
+        await importListOf({entityType, entities: entities[entityType]})
+    }
+
+    console.log('Publish items')
+   
     await publishTempIndex()
 }
 

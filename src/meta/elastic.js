@@ -113,7 +113,7 @@ function putMappings(db, indexName, next) {
                 color: { type: "integer" },
                 color_options: { type: "integer" },
                 pattern: { type: "text" },
-                id: { type: "long" },
+                id: { type: "keyword" },
                 status: { type: "integer" },
                 weight: { type: "integer" },
                 visibility: { type: "integer" },
@@ -154,7 +154,7 @@ function putMappings(db, indexName, next) {
                 },
                 configurable_options: {
                     properties: {
-                        attribute_id: { type: "long" },
+                        attribute_id: { type: "keyword" },
                         default_label: { type: "text"},
                         label: { type: "text"},
                         frontend_label: { type: "text"},
@@ -170,7 +170,7 @@ function putMappings(db, indexName, next) {
                         }
                     }
                 },
-                category_ids: { type: "long" },
+                category_ids: { type: "keyword" },
                 eco_collection: { type: "integer" },
                 eco_collection_options: { type: "integer" },
                 erin_recommends: { type: "integer" },
@@ -185,7 +185,7 @@ function putMappings(db, indexName, next) {
                 type: "taxrule",
                 body: {
                 properties: {
-                    id: { type: "long" },
+                    id: { type: "keyword" },
                     rates: {
                     properties: {
                         rate: { type: "float" }
@@ -196,13 +196,15 @@ function putMappings(db, indexName, next) {
             }).then(res2 => {
                 console.dir(res2, { depth: null, colors: true })
 
+                console.log(indexName)
+
                 db.indices.putMapping({
                     index: indexName,
                     type: "attribute",
                     body: {
                     properties: {
-                        id: { type: "long" },
-                        attribute_id: { type: "long" },
+                        id: { type: "keyword" },
+                        attribute_id: { type: "keyword" },
 
                         options: {
                         properties: {
