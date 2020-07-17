@@ -1,11 +1,18 @@
 const loader = require('./loader')
 const slugify = require('@sindresorhus/slugify');
 const {logger} = require('./utils')
+const fs = require('fs')
 
 const categoriesLoader = async () => {
 
   let categories = {}
   let indexedRows = {}
+
+  const root = {
+    id: 1,
+    slug: 'shop',
+    name: 'Магазин'
+  }
 
   const parseCategory = (row) => {
 
@@ -13,16 +20,17 @@ const categoriesLoader = async () => {
 
     let category = {
       id: row.id,
-      parent_id: null,
+      parent_id: root.id,
       name: row.name,
       url_key: slug,
-      path: row.id,
-      pathName: row.pathName ? `${row.pathName}/${row.name}` : row.name,
-      url_path: slug,
-      level: 1,
+      path: `${root.id}/${row.id}`,
+      pathName: row.pathName ? `${root.name}/${row.pathName}/${row.name}` : `${root.name}/${row.name}`,
+      url_path: `${root.slug}/${slug}`,
+      level: 2,
       position: 1,
       is_active: true,
-      children_data: []
+      children_data: [],
+      product_count: 0
     }
 
     if (row.pathName) {
@@ -54,9 +62,10 @@ const categoriesLoader = async () => {
         slugs.push(parent.slug)
 
         category.parent_id = parent.id
-        category.path = `${ids.join('/')}/${category.path}`
-        category.url_path = `${slugs.join('/')}/${category.url_path}`
-        category.level = slugs.length + 1
+        category.path = `${root.id}/${ids.join('/')}/${category.path}`
+        category.url_path = `${root.slug}/${slugs.join('/')}/${category.url_path}`
+        category.level = slugs.length + 2
+        category.product_count = 0
 
       } else {
         logger.error(`Category not found by ${row.pathName}`)
@@ -80,26 +89,49 @@ const categoriesLoader = async () => {
   const findChildren = (parentId) => {
 
     let children = []
+    let product_count = 0
 
     for (let id in categories) {
-      let current = categories[id]
-      if (current.parent_id === parentId) {
-        children.push(findChildren(current.id))
+      if (categories[id].parent_id === parentId) {
+        let data = findChildren(id)
+        children.push(data.children_data)
+        product_count += data.product_count
       }
     }
 
     if (categories[parentId]) {
       categories[parentId].children_data = children
+      categories[parentId].product_count = product_count
     }
 
     return {
-      id: parentId,
-      children_data: children
+      children_data: {
+        id: parentId,
+        children_data: children
+      },
+      product_count
     }
 
   }
 
-  findChildren(null)
+  let data = findChildren(root.id)
+
+  categories[root.id] = {
+    id: root.id,
+    parent_id: null,
+    name: root.name,
+    url_key: root.slug,
+    path: root.id,
+    pathName: root.name,
+    url_path: root.slug,
+    level: 1,
+    position: 1,
+    is_active: true,
+    children_data: data.children_data,
+    product_count: data.product_count
+  }
+
+  fs.writeFile(`${__dirname}/../../var/log/PARSED_CATEGORIES.json`, JSON.stringify(categories), () => console.log('File wrote'))
 
   return {categories, indexedRows}
 

@@ -25,7 +25,7 @@ let client = new es.Client({
 })
 
 function showWelcomeMsg() {
-    console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA?INDEX_META_DATA.updated:``)
+    console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA ? INDEX_META_DATA.updated : ``)
 }
 
 async function readIndexMeta() {
@@ -110,6 +110,9 @@ async function storeResult({result, entityType}) {
         type: entityType,
         id: result.id,
         body: result
+    }).catch(e => {
+        console.log(result)
+        console.log(e)
     })
 }
 
@@ -121,7 +124,7 @@ async function storeResult({result, entityType}) {
  */
 async function importListOf({entityType, entities}) {
     console.log('Import ', entityType)
-    for(let i in entities){
+    for (let i in entities) {
         await storeResult({result: entities[i], entityType})
     }
 }
@@ -142,17 +145,17 @@ const indexer = async () => {
     await recreateTempIndex()
 
     console.log('Parse API')
-    
+
     const entities = await parser()
 
     console.log('Import entities')
 
-    for(let entityType in entities) {
+    for (let entityType in entities) {
         await importListOf({entityType, entities: entities[entityType]})
     }
 
     console.log('Publish items')
-   
+
     await publishTempIndex()
 }
 

@@ -56,21 +56,15 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
 
   const parseStock = (row) => {
 
-    let qty = 0
-    if (stocks[row.product.code]) {
-      qty = stocks[row.product.code].stock
-    }
-
     if (stocks[row.code]) {
-      qty += stocks[row.code].stock
+      products[row.product.id].stock.qty += stocks[row.code].stock
     }
 
-    return [
-      {
-        is_in_stock: qty > 0,
-        qty
-      }
-    ]
+    if (products[row.product.id].stock.qty > 0) {
+      products[row.product.id].stock.is_in_stock = true
+    }
+
+    addProductsCountToCategory(row, stocks[row.code] ? stocks[row.code].stock : 0)
   }
 
   const parseGeneralData = async (row, images) => {
@@ -141,6 +135,12 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
     }
   }
 
+  const setInitialStock = (row) => {
+    if (stocks[row.product.code]) {
+      products[row.product.id].stock.qty = stocks[row.product.code].stock
+    }
+  }
+
   const addNewProduct = async (row) => {
     let p = await parseGeneralData(row, row.product.images)
     p.configurable_children = []
@@ -148,7 +148,11 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
     p.type_id = 'configurable'
     p.category_ids = []
     p.category = []
-    p.stock = parseStock(row)
+    p.visibility = 4
+    p.stock = {
+      is_in_stock: false,
+      qty: 0
+    }
 
     if (row.product.pathName.length > 0) {
       if (indexedRows[row.product.pathName]) {
@@ -172,13 +176,32 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
     return p
   }
 
+  const addCountToCategory = (parentId, count) => {
+    if (categories[parentId].parent_id) {
+      addCountToCategory(categories[parentId].parent_id, count)
+    }
+    categories[parentId].product_count += count
+  }
+
+  const addProductsCountToCategory = (row, count) => {
+
+    if (count > 0) {
+      products[row.product.id].category_ids.forEach(id => {
+        addCountToCategory(id, count)
+      })
+    }
+  }
+
   const parseVariant = async (row) => {
 
     let newProduct = currentProductId !== row.product.id
 
     if (newProduct) {
       products[row.product.id] = await addNewProduct(row)
+      setInitialStock(row)
     }
+
+    parseStock(row)
 
     let variant = await parseGeneralData(row, row.images)
 
@@ -220,7 +243,8 @@ const variantsLoader = async ({indexedRows, categories, stocks}) => {
 
   return {
     products,
-    attributes
+    attributes,
+    categories
   }
 
 }

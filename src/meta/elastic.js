@@ -1,6 +1,6 @@
 function putAlias(db, originalName, aliasName, next) {
     let step2 = () => {
-        db.indices.putAlias({ index: originalName, name: aliasName }).then(result=>{
+        db.indices.putAlias({index: originalName, name: aliasName}).then(result => {
             console.log('Index alias created', result)
         }).then(next).catch(err => {
             console.log(err.message)
@@ -9,7 +9,7 @@ function putAlias(db, originalName, aliasName, next) {
     }
     return db.indices.deleteAlias({
         index: aliasName,
-        name:  originalName
+        name: originalName
     }).then((result) => {
         console.log('Public index alias deleted', result)
         step2()
@@ -22,31 +22,31 @@ function putAlias(db, originalName, aliasName, next) {
 function deleteIndex(db, indexName, next) {
     db.indices.delete({
         "index": indexName
-      }).then((res) => {
-        console.dir(res, { depth: null, colors: true })
+    }).then((res) => {
+        console.dir(res, {depth: null, colors: true})
         next()
-      }).catch(err => {
+    }).catch(err => {
         console.error(err)
         next(err)
-      })
+    })
 }
 function reIndex(db, fromIndexName, toIndexName, next) {
     db.reindex({
-      waitForCompletion: true,
-      body: {
-        "source": {
-          "index": fromIndexName
-        },
-        "dest": {
-          "index": toIndexName
+        waitForCompletion: true,
+        body: {
+            "source": {
+                "index": fromIndexName
+            },
+            "dest": {
+                "index": toIndexName
+            }
         }
-      }
     }).then(res => {
-      console.dir(res, { depth: null, colors: true })
-      next()
+        console.dir(res, {depth: null, colors: true})
+        next()
     }).catch(err => {
-      console.error(err)
-      next(err)
+        console.error(err)
+        next(err)
     })
 }
 
@@ -56,35 +56,35 @@ function createIndex(db, indexName, next) {
 
         db.indices.delete({
             "index": indexName
-            }).then(res1 => {
-                console.dir(res1, { depth: null, colors: true })
-                db.indices.create(
-                    {
-                        "index": indexName
-                    }).then(res2 => {
-                        console.dir(res2, { depth: null, colors: true })
-                        next()
-                    }).catch(err => {
-                        console.error(err)
-                        next(err)
-                    })
-                }).catch(() => {
-                    db.indices.create(
-                        {
-                        "index": indexName
-                        }).then(res2 => {
-                            console.dir(res2, { depth: null, colors: true })
-                            next()
-                        }).catch(err => {
-                            console.error(err)
-                            next(err)
-                        })
+        }).then(res1 => {
+            console.dir(res1, {depth: null, colors: true})
+            db.indices.create(
+                {
+                    "index": indexName
+                }).then(res2 => {
+                    console.dir(res2, {depth: null, colors: true})
+                    next()
+                }).catch(err => {
+                    console.error(err)
+                    next(err)
                 })
+        }).catch(() => {
+            db.indices.create(
+                {
+                    "index": indexName
+                }).then(res2 => {
+                    console.dir(res2, {depth: null, colors: true})
+                    next()
+                }).catch(err => {
+                    console.error(err)
+                    next(err)
+                })
+        })
     }
 
     return db.indices.deleteAlias({
         index: '*',
-        name:  indexName
+        name: indexName
     }).then((result) => {
         console.log('Public index alias deleted', result)
         step2()
@@ -94,144 +94,73 @@ function createIndex(db, indexName, next) {
     })
 }
 
-function putMappings(db, indexName, next) {
-    return db.indices.putMapping({
+async function putMappings(db, indexName, next) {
+
+    await db.indices.putMapping(require('./product-mapping.js')(indexName)).then(res1 => {
+        console.dir(res1, {depth: null, colors: true})
+    }).catch(err => {
+        console.error(err)
+        next(err)
+        return
+    })
+
+    await db.indices.putMapping({
         index: indexName,
-        type: "product",
+        type: "attribute",
         body: {
             properties: {
-                slug: {type: "keyword"},
-                url_key: {type: "keyword"},
-                url_path: {type: "keyword"},
-                sku: { type: "keyword" },
-                size: { type: "integer" },
-                size_options: { type: "integer" },
-                price: { type: "float" },
-                originalPriceInclTax    : { type: "float" },
-                has_options: { type: "boolean" },
-                special_price: { type: "float" },
-                color: { type: "integer" },
-                color_options: { type: "integer" },
-                pattern: { type: "text" },
-                id: { type: "keyword" },
-                status: { type: "integer" },
-                weight: { type: "integer" },
-                visibility: { type: "integer" },
-                created_at: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                updated_at: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                special_from_date: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                special_to_date: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                news_from_date: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                news_to_date: {
-                    type: "date",
-                    format: "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-                },
-                description: { type: "text" },
-                name: { type: "text" },
-                configurable_children: {
+                id: {type: "keyword"},
+                attribute_id: {type: "keyword"},
+
+                options: {
                     properties: {
-                        url_key: { type: "keyword"},
-                        has_options: { type: "boolean"},
-                        price: { type: "float"},
-                        sku: { type: "keyword"},
-                        special_price: { type: "float"}
+                        value: {type: "text", "index": "not_analyzed"}
                     }
-                },
-                configurable_options: {
-                    properties: {
-                        attribute_id: { type: "keyword" },
-                        default_label: { type: "text"},
-                        label: { type: "text"},
-                        frontend_label: { type: "text"},
-                        store_label: { type: "text"},
-                        values: {
-                            properties: {
-                                default_label: { type: "text"},
-                                label: { type: "text"},
-                                frontend_label: { type: "text"},
-                                store_label: { type: "text"},
-                                value_index:  { type: "keyword" }
-                            }
-                        }
-                    }
-                },
-                category_ids: { type: "keyword" },
-                eco_collection: { type: "integer" },
-                eco_collection_options: { type: "integer" },
-                erin_recommends: { type: "integer" },
-                tax_class_id: { type: "long" }
+                }
             }
         }
-        }).then(res1 => {
-            console.dir(res1, { depth: null, colors: true })
+    }).then(res3 => {
+        console.dir(res3, {depth: null, colors: true})
+    }).catch(err3 => {
+        throw new Error(err3)
+    })
 
-            db.indices.putMapping({
-                index: indexName,
-                type: "taxrule",
-                body: {
-                properties: {
-                    id: { type: "keyword" },
-                    rates: {
+    await db.indices.putMapping({
+        index: indexName,
+        type: "taxrule",
+        body: {
+            properties: {
+                id: {type: "keyword"},
+                rates: {
                     properties: {
-                        rate: { type: "float" }
-                    }
+                        rate: {type: "float"}
                     }
                 }
-                }
-            }).then(res2 => {
-                console.dir(res2, { depth: null, colors: true })
+            }
+        }
+    }).then(res2 => {
+        console.dir(res2, {depth: null, colors: true})
+    }).catch(err2 => {
+        throw new Error(err2)
+    })
 
-                console.log(indexName)
+    await db.indices.putMapping({
+        index: indexName,
+        type: "category",
+        body: require('./category-mapping.json')
+    }).then(res2 => {
+        console.dir(res2, {depth: null, colors: true})
+    }).catch(err2 => {
+        throw new Error(err2)
+    })
 
-                db.indices.putMapping({
-                    index: indexName,
-                    type: "attribute",
-                    body: {
-                    properties: {
-                        id: { type: "keyword" },
-                        attribute_id: { type: "keyword" },
+    next()
+}
 
-                        options: {
-                        properties: {
-                            value:  { type: "text", "index" : "not_analyzed" }
-                        }
-                        }
-                    }
-                    }
-                }).then(res3 => {
-                    console.dir(res3, { depth: null, colors: true })
-                    next()
-                }).catch(err3 => {
-                    throw new Error(err3)
-                })
-            }).catch(err2 => {
-                throw new Error(err2)
-            })
-        }).catch(err1 => {
-            console.error(err1)
-            next(err1)
-        })
-  }
-
-  module.exports = {
+module.exports = {
     putMappings,
     putAlias,
     createIndex,
     deleteIndex,
     reIndex
-  }
+}
