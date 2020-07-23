@@ -1,17 +1,17 @@
 const loader = require('./loader')
-const {logger} = require('./utils')
+const { logger } = require('./utils')
 
-const stocksLoader = async () => {
+const stocksLoader = async() => {
 
-  let stocks = {}
+    let stocks = {}
 
-  await loader('https://online.moysklad.ru/api/remap/1.2/report/stock/all?offset=0&limit=100', 'stocks', (row) => {
-    stocks[row.code] = {
-      stock: row.stock
-    }
-  })
+    await loader('https://online.moysklad.ru/api/remap/1.2/report/stock/all?offset=0&limit=100', 'stocks', (row) => {
+        stocks[row.code] = {
+            stock: row.stock
+        }
+    })
 
-  return {stocks}
+    return { stocks }
 
 }
 

@@ -33,7 +33,7 @@ async function readIndexMeta() {
         jsonFile.readFile(INDEX_META_PATH, (err, indexMeta) => {
             if (err) {
                 console.log('Seems like first time run!', err.message)
-                resolve({version: 0, created: new Date(), updated: new Date()})
+                resolve({ version: 0, created: new Date(), updated: new Date() })
                 return;
             }
 
@@ -51,7 +51,7 @@ async function updateMetaFile() {
     return new Promise((resolve, reject) => {
 
         indexMeta.version++
-        INDEX_VERSION = indexMeta.version
+            INDEX_VERSION = indexMeta.version
         indexMeta.updated = new Date()
         jsonFile.writeFile(INDEX_META_PATH, indexMeta, (err) => {
             if (err) {
@@ -65,9 +65,9 @@ async function updateMetaFile() {
 
 async function recreateTempIndex() {
 
-    const {version, updated} = await updateMetaFile()
+    const { version, updated } = await updateMetaFile()
 
-    const result = await client.indices.create({index: `${config.elasticsearch.indexName}_${version}`})
+    const result = await client.indices.create({ index: `${config.elasticsearch.indexName}_${version}` })
 
     console.log('Index Created', result)
     console.log('** NEW INDEX VERSION', version, updated)
@@ -97,14 +97,14 @@ async function publishTempIndex() {
         console.log('Public index alias does not exists', err.message)
     }
 
-    console.log('Index alias created', await client.indices.putAlias({index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`, name: config.elasticsearch.indexName}))
+    console.log('Index alias created', await client.indices.putAlias({ index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`, name: config.elasticsearch.indexName }))
 
     if (INDEX_VERSION > 1) {
         await deleteOldIndex(INDEX_VERSION - 1)
     }
 }
 
-async function storeResult({result, entityType}) {
+async function storeResult({ result, entityType }) {
     return client.index({
         index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`,
         type: entityType,
@@ -113,6 +113,7 @@ async function storeResult({result, entityType}) {
     }).catch(e => {
         console.log(result)
         console.log(e)
+        throw e
     })
 }
 
@@ -122,23 +123,23 @@ async function storeResult({result, entityType}) {
  * @param {String} entityType
  * @param {Object} importer
  */
-async function importListOf({entityType, entities}) {
+async function importListOf({ entityType, entities }) {
     console.log('Import ', entityType)
     for (let i in entities) {
-        await storeResult({result: entities[i], entityType})
+        await storeResult({ result: entities[i], entityType })
     }
 }
 
-const purge = async () => {
+const purge = async() => {
     return new Promise((resolve, reject) => {
-        client.indices.delete({index: '*'}).then(r => fs.unlink(INDEX_META_PATH, () => {
+        client.indices.delete({ index: '*' }).then(r => fs.unlink(INDEX_META_PATH, () => {
             console.log('Meta file removed')
             resolve()
         }))
     })
 }
 
-const indexer = async () => {
+const indexer = async() => {
 
     await readIndexMeta()
     showWelcomeMsg()
@@ -151,7 +152,8 @@ const indexer = async () => {
     console.log('Import entities')
 
     for (let entityType in entities) {
-        await importListOf({entityType, entities: entities[entityType]})
+        fs.writeFile(`${__dirname}/../var/log/PARSET_${entityType}.json`, JSON.stringify(entities[entityType]), () => console.log(`Log added to ${entityType}`))
+        await importListOf({ entityType, entities: entities[entityType] })
     }
 
     console.log('Publish items')
