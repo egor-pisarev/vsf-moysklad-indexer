@@ -12,6 +12,7 @@
         "dotenv": "^8.2.0",
         "elasticsearch": "^14.2.2",
         "file-saver": "^2.0.2",
+        "graphql-client": "^2.0.1",
         "image-downloader": "^4.0.1",
         "isomorphic-fetch": "^2.2.1",
         "jsonfile": "^6.0.1",

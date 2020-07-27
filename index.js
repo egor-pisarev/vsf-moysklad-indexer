@@ -1,2 +1,2 @@
-require('./src').purge().then(r => require('./src').indexer()).then(r => console.log(r))
+require('./src').purge().then(r => require('./src').run()).then(r => console.log(r))
     //require('./src').indexer().then(r => console.log('Ready'))

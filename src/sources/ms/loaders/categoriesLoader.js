@@ -1,10 +1,11 @@
-const loader = require('./loader')
 const slugify = require('@sindresorhus/slugify');
-const { logger } = require('./utils')
 const fs = require('fs')
-const { numberId } = require('./numberId')
+const { numberId } = require('../helpers/numberId')
 
-const categoriesLoader = async() => {
+const categoriesLoader = (config, utils) => {
+
+    const { loader } = require('./loader')(config)
+    const { logger } = utils
 
     let categories = {}
     let indexedRows = {}
@@ -79,15 +80,8 @@ const categoriesLoader = async() => {
 
     }
 
-    await loader('https://online.moysklad.ru/api/remap/1.2/entity/productfolder?offset=0&limit=100', 'categories', async(row) => {
-        let slug = slugify(row.name)
-        row.id = await numberId(row.id)
-        indexedRows[row.pathName ? `${row.pathName}/${row.name}` : row.name] = {...row, slug }
-    })
 
-    for (let rowId in indexedRows) {
-        parseCategory(indexedRows[rowId])
-    }
+
 
     const findChildren = (parentId) => {
 
@@ -127,31 +121,43 @@ const categoriesLoader = async() => {
 
     }
 
-    categories[root.id] = {
-        id: root.id,
-        parent_id: null,
-        name: root.name,
-        url_key: root.slug,
-        slug: root.slug,
-        path: root.id,
-        pathName: root.name,
-        url_path: root.slug,
-        level: 1,
-        position: 1,
-        is_active: true,
+    return async () => {
+        await loader('https://online.moysklad.ru/api/remap/1.2/entity/productfolder?offset=0&limit=100', 'categories', async (row) => {
+            let slug = slugify(row.name)
+            row.id = await numberId(row.id)
+            indexedRows[row.pathName ? `${row.pathName}/${row.name}` : row.name] = { ...row, slug }
+        })
+
+        for (let rowId in indexedRows) {
+            parseCategory(indexedRows[rowId])
+        }
+
+        categories[root.id] = {
+            id: root.id,
+            parent_id: null,
+            name: root.name,
+            url_key: root.slug,
+            slug: root.slug,
+            path: root.id,
+            pathName: root.name,
+            url_path: root.slug,
+            level: 1,
+            position: 1,
+            is_active: true,
+        }
+
+        let data = findChildren(root.id)
+
+        // categories[root.id] = {
+        //     ...categories[root.id],
+        //     children_data: data.children_data,
+        //     product_count: data.product_count
+        // }
+
+        fs.writeFile(`${__dirname}/../../var/log/PARSED_CATEGORIES.json`, JSON.stringify(categories), () => console.log('Categories before process File wrote'))
+
+        return { categories, indexedRows }
     }
-
-    let data = findChildren(root.id)
-
-    // categories[root.id] = {
-    //     ...categories[root.id],
-    //     children_data: data.children_data,
-    //     product_count: data.product_count
-    // }
-
-    fs.writeFile(`${__dirname}/../../var/log/PARSED_CATEGORIES.json`, JSON.stringify(categories), () => console.log('Categories before process File wrote'))
-
-    return { categories, indexedRows }
 
 }
 

@@ -1,4 +1,4 @@
-const { redis } = require('./utils')
+const { redis } = require('../../../utils')
 
 module.exports = {
     numberId: async(strId) => {
