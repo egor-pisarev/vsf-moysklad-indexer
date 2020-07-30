@@ -10,6 +10,8 @@ let INDEX_META_DATA
 
 const INDEX_META_PATH = path.join(__dirname, '../../../var/indexMetadata.json')
 
+const entitiesTypes = ['product', 'attribute', 'category']
+
 module.exports = (config, utils) => {
 
     const { client } = require('./client')(config)
@@ -136,10 +138,10 @@ module.exports = (config, utils) => {
         await recreateTempIndex()
 
         console.log('Parse API')
-
         console.log('Import entities')
 
         for (let entityType in entities) {
+            if (entitiesTypes.indexOf(entityType) < 0) continue
             fs.writeFile(`${__dirname}/../var/log/PARSET_${entityType}.json`, JSON.stringify(entities[entityType]), () => console.log(`Log added to ${entityType}`))
             await importListOf({ entityType, entities: entities[entityType] })
         }
@@ -148,8 +150,6 @@ module.exports = (config, utils) => {
 
         await publishTempIndex()
     }
-
-
 
     return {
         run,

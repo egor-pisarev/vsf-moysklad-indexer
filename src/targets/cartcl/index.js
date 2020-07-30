@@ -37,25 +37,52 @@ module.exports = (config, utils) => {
         })
     }
 
-    const run = async (entities) => {
+    const loadProducts = async (items) => {
 
-        for (let i in entities.product) {
+        for (let i in items) {
 
-            let element = entities.product[i]
+            let element = items[i]
 
             if (element.configurable_children) {
 
-                for(let j in element.configurable_children) {
+                for (let j in element.configurable_children) {
                     let child = element.configurable_children[j]
                     let result = await loadProduct(child)
                     utils.logger.info(`Product updated ${result.updateProduct.providerId}`)
                 }
-            
+
             } else {
                 await loadProduct(element)
             }
         }
 
+    }
+
+    const loadCustomer = async (item) => {
+        return query(`mutation($updateCustomerInput: UpdateCustomerInput!) {
+        updateCustomer(input: $updateCustomerInput) {
+            providerId,
+            email,
+            phone
+        }
+    }`, {
+            updateCustomerInput: {
+                email: item.email,
+                providerId: item.providerId,
+                phone: item.phone
+            }
+        })
+    }
+
+    const loadCustomers = async (items) => {
+        for (let i in items) {
+            await loadCustomer(items[i])
+        }
+    }
+
+    const run = async (entities) => {
+        await loadProducts(entities.product)
+        await loadCustomers(entities.customer)
     }
 
     return {

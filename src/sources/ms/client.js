@@ -12,6 +12,4 @@ module.exports = (config) => {
     return {
         client: http
     }
-  
-
 }
