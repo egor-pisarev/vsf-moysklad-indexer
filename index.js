@@ -1,3 +1,3 @@
 require('./src').run().then(r => {
-    process.exitCode = 0
+    process.exit(0)
 })

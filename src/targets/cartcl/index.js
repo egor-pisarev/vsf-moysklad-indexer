@@ -63,13 +63,15 @@ module.exports = (config, utils) => {
         updateCustomer(input: $updateCustomerInput) {
             providerId,
             email,
-            phone
+            phone,
+            name
         }
     }`, {
             updateCustomerInput: {
                 email: item.email,
                 providerId: item.providerId,
-                phone: item.phone
+                phone: item.phone,
+                name: item.name
             }
         })
     }
