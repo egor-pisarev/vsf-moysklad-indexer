@@ -2,5 +2,8 @@
     "elasticsearch": {
         "host": "localhost:9200",
         "indexName": "vue_storefront_catalog"
+    },
+    "cartcl": {
+        "url": "http://localhost:4000/graphql"
     }
 }
