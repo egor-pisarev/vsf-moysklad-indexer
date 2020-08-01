@@ -24,13 +24,12 @@ const clearCustomers = async () => {
         if(row.email && emails.indexOf(row.email) >= 0){
             if (customers.indexOf(row.meta.href) < 0) {
                 await client.delete(row.meta.href).catch(err => console.log(err.message))
-                logger.info(`DELETED ${row.id} ${row.email}`)
+                //logger.info(`DELETED ${row.id} ${row.email}`)
             }
         } else {
-            logger.warn(JSON.stringify(row))
+            //logger.warn(JSON.stringify(row))
             emails.push(row.email)
         }
-      
     })
 
 }
