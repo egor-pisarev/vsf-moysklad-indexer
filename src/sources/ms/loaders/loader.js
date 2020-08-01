@@ -21,7 +21,7 @@ module.exports = (config) => {
             await redis.set(`${key}`, JSON.stringify(data))
             return data
         }
-        // fs.writeFile(`${__dirname}/../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
+        fs.writeFile(`${__dirname}/../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
 
         return JSON.parse(value)
     }
