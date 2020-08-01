@@ -6,10 +6,18 @@ module.exports = (config) => {
     const { client } = require('../client')(config)
 
     const load = async (href, key) => {
-        let value = await redis.get(`${key}`)
+
+        let value
+        if (process.env.USE_CACHE) {
+            let value = await redis.get(`${key}`)
+        }
+
         if (!value) {
             logger.info(`Load from API ${href}`)
             let { data } = await client.get(href)
+            if (process.env.USE_CACHE) {
+                await redis.set(`${key}`, JSON.stringify(data))
+            }
             await redis.set(`${key}`, JSON.stringify(data))
             return data
         }

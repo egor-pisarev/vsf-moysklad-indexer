@@ -35,8 +35,9 @@ module.exports = (config, utils) => {
                         attributes[characteristic.id] = {
                             id: characteristic.id,
                             default_frontend_label: characteristic.name,
+                            label: characteristic.name,
                             default_value: '',
-                            attribute_code: attributeCode,
+                            attribute_code: `${attributeCode}`,
                             frontend_input: "select",
                             frontend_label: characteristic.name,
                             is_user_defined: true,
@@ -95,6 +96,9 @@ module.exports = (config, utils) => {
         const nowDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
     
         const parseGeneralData = async(row, images) => {
+
+            let udated = row.updated?row.updated.substring(0,19):nowDate
+
             let data = {
                 providerId: row.providerId,
                 id: row.id,
@@ -105,8 +109,8 @@ module.exports = (config, utils) => {
                 status: 1,
                 minimum: 1,
                 url_path: slugify(row.name),
-                created_at: nowDate,
-                updated_at: nowDate,
+                created_at: udated,
+                updated_at: udated,
                 length: 0,
                 width: 0,
                 height: 0,
@@ -200,7 +204,15 @@ module.exports = (config, utils) => {
     
         const addNewProduct = async(row) => {
             let product = await parseGeneralData(row, row.product.images)
-    
+
+            let updated = new Date(row.updated.substring(0,9))
+            let now = new Date()
+
+            product.new = 0
+            if(now.getTime() - updated.getTime() < 1000*3600*24*30){
+                product.new = 1
+            }
+            
             product.providerId = row.providerProductId
             product.name = row.product.name
             product.description = row.product.description
@@ -284,7 +296,7 @@ module.exports = (config, utils) => {
     
             let variant = await parseGeneralData(row, row.images)
             variant.qty = qty
-    
+            
             const variantAttributes = await parseAttributes(row)
     
             for (let i = 0; i < variantAttributes.length; i++) {
@@ -293,10 +305,10 @@ module.exports = (config, utils) => {
                     // const attributeCode = `attribute_${variantAttribute.id}`
                 let attributeCode = slugify(variantAttribute.name)
     
-                if (!products[row.product.id][`attribute_${variantAttribute.id}_options`]) {
-                    products[row.product.id][`attribute_${variantAttribute.id}_options`] = []
+                if (!products[row.product.id][`${attributeCode}_options`]) {
+                    products[row.product.id][`${attributeCode}_options`] = []
                 }
-                products[row.product.id][`attribute_${variantAttribute.id}_options`].push(variantAttribute.value)
+                products[row.product.id][`${attributeCode}_options`].push(variantAttribute.value)
     
                 let attributeOption = products[row.product.id].configurable_options.find(option => option.attribute_code === attributeCode)
     
