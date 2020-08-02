@@ -18,7 +18,6 @@ module.exports = (config) => {
             if (process.env.USE_CACHE) {
                 await redis.set(`${key}`, JSON.stringify(data))
             }
-            await redis.set(`${key}`, JSON.stringify(data))
             return data
         }
         fs.writeFile(`${__dirname}/../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
