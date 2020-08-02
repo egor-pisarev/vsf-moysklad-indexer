@@ -20,15 +20,25 @@ const clearCustomers = async () => {
         customers.push(row.agent.meta.href)
     })
 
-    await loader(`https://online.moysklad.ru/api/remap/1.2/entity/counterparty?offset=0&limit=100`, 'customers', async (row) => {
+    let part = []
+    let counter = 1
+
+    await loader(`https://online.moysklad.ru/api/remap/1.2/entity/counterparty?offset=0&limit=500`, 'customers', async (row) => {
+        if(counter % 1000 === 0){
+            console.log('Deleted', counter)
+        }
         if(row.email && emails.indexOf(row.email) >= 0){
             if (customers.indexOf(row.meta.href) < 0) {
-                await client.delete(row.meta.href).catch(err => console.log(err.message))
-                //logger.info(`DELETED ${row.id} ${row.email}`)
+                counter++
+                part.push(client.delete(row.meta.href).catch(err => console.log(err.message)))
             }
         } else {
             //logger.warn(JSON.stringify(row))
             emails.push(row.email)
+        }
+        if(part.length === 10){
+            await Promise.all(part)
+            part = []
         }
     })
 
