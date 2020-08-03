@@ -6,14 +6,21 @@ module.exports = (config) => {
     const { client } = require('../client')(config)
 
     const load = async (href, key) => {
-        let value = await redis.get(`${key}`)
+
+        let value
+        if (process.env.USE_CACHE) {
+            let value = await redis.get(`${key}`)
+        }
+
         if (!value) {
             logger.info(`Load from API ${href}`)
             let { data } = await client.get(href)
-            await redis.set(`${key}`, JSON.stringify(data))
+            if (process.env.USE_CACHE) {
+                await redis.set(`${key}`, JSON.stringify(data))
+            }
             return data
         }
-        // fs.writeFile(`${__dirname}/../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
+        fs.writeFile(`${__dirname}/../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
 
         return JSON.parse(value)
     }
