@@ -9,7 +9,7 @@ module.exports = (config) => {
 
         let value
         if (process.env.USE_CACHE) {
-            let value = await redis.get(`${key}`)
+            value = await redis.get(`${key}`)
         }
 
         if (!value) {
