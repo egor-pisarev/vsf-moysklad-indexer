@@ -379,8 +379,8 @@ module.exports = (config, utils) => {
             }
         }
 
-        await loader('https://online.moysklad.ru/api/remap/1.2/entity/variant?offse=0&limit=100&expand=product,images,product.images&order=updated;desc', 'variants', parseVariant)
-        await loader('https://online.moysklad.ru/api/remap/1.2/entity/product?offse=0&limit=10&expand=images&order=updated;desc', 'products', parseProduct)
+        await loader('https://online.moysklad.ru/api/remap/1.2/entity/variant?offse=0&limit=100&expand=product,images,product.images', 'variants', parseVariant)
+        await loader('https://online.moysklad.ru/api/remap/1.2/entity/product?offse=0&limit=10&expand=images', 'products', parseProduct)
 
         return {
             products,
