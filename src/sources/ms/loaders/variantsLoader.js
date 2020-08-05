@@ -359,6 +359,10 @@ module.exports = (config, utils) => {
                 }
             }
 
+            if (!products[row.product.id].configurable_children) {
+                products[row.product.id].configurable_children = []
+            }
+
             products[row.product.id].configurable_children.push(variant)
 
         }
