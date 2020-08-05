@@ -8,28 +8,28 @@ module.exports = (config, utils) => {
 
     const { logger } = utils
 
-    const {loader, client} = require('./loader')(config)
+    const { loader, client } = require('./loader')(config)
 
-    const variantsLoader = async({ indexedRows, categories, stocks }) => {
+    const variantsLoader = async ({ indexedRows, categories, stocks }) => {
 
         const products = {}
         const attributes = {}
-    
-        const parseAttributes = async(row) => {
-    
+
+        const parseAttributes = async (row) => {
+
             let variantAttributes = []
-    
+
             if (row.characteristics) {
-    
+
                 for (let i = 0; i < row.characteristics.length; i++) {
                     let characteristic = row.characteristics[i]
-    
+
                     characteristic.id = await numberId(characteristic.id)
-    
+
                     let optionIndex = await numberId(`${characteristic.id}:${characteristic.value}`)
-    
+
                     let attributeCode = slugify(characteristic.name)
-    
+
                     //Add if attribute not exists
                     if (!attributes[characteristic.id]) {
                         attributes[characteristic.id] = {
@@ -53,51 +53,51 @@ module.exports = (config, utils) => {
                     }
                     //Add if option not exists
                     if (!attributes[characteristic.id].options.find(attribute => attribute.value === optionIndex)) {
-    
+
                         attributes[characteristic.id].options.push({
                             label: characteristic.value,
                             value: optionIndex,
                         })
-    
+
                     }
                     //set attribute to variant
                     variantAttributes.push({
-                            id: characteristic.id,
-                            label: characteristic.value,
-                            value: optionIndex,
-                            name: characteristic.name
-                        })
-                        //??
-                        // attributes[characteristic.id].products.push(row.product.id)
+                        id: characteristic.id,
+                        label: characteristic.value,
+                        value: optionIndex,
+                        name: characteristic.name
+                    })
+                    //??
+                    // attributes[characteristic.id].products.push(row.product.id)
                 }
             }
-    
+
             return variantAttributes
         }
-    
-        const parseStock = (row) => {
-    
+
+        const parseStock = (row, productRow) => {
+
             // if (stocks[row.code]) {
             //     products[row.product.id].qty += stocks[row.code].stock
             // }
 
             let qty = 0
-    
-            if (stocks[row.code] && stocks[row.code].stock > 0) {
-                products[row.product.id].stock.is_in_stock = true
-                qty = stocks[row.code].stock
+
+            if (stocks[row.providerId] && stocks[row.providerId].stock > 0) {
+                products[productRow.id].stock.is_in_stock = true
+                qty = stocks[row.providerId].stock
             }
-    
-            addProductsCountToCategory(row, stocks[row.code] ? stocks[row.code].stock : 0)
+
+            addProductsCountToCategory(row, productRow, stocks[row.providerId] ? stocks[row.providerId].stock : 0)
             return qty
         }
 
-       
-        const nowDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-    
-        const parseGeneralData = async(row, images) => {
 
-            let udated = row.updated?row.updated.substring(0,19):nowDate
+        const nowDate = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+
+        const parseGeneralData = async (row, images) => {
+
+            let udated = row.updated ? row.updated.substring(0, 19) : nowDate
 
             let data = {
                 providerId: row.providerId,
@@ -119,20 +119,20 @@ module.exports = (config, utils) => {
                 length_class: "см",
                 tier_prices: []
             }
-    
-            return {...data, ...parsePrices(row), ...await parseImages(images) }
+
+            return { ...data, ...parsePrices(row), ...await parseImages(images) }
         }
-    
+
         const formatPrice = (price) => Math.round(price / 100)
-    
+
         const parsePrices = (row) => {
-    
+
             let salePrice = row.salePrices.find(price => price.priceType.name === 'Цена продажи')
             let specialPrice = row.salePrices.find(price => price.priceType.name === 'Цена со скидкой')
-    
+
             salePrice = salePrice ? formatPrice(salePrice.value) : 0
             specialPrice = specialPrice ? formatPrice(specialPrice.value) : 0
-    
+
             return {
                 price: salePrice,
                 special_price: specialPrice,
@@ -148,11 +148,11 @@ module.exports = (config, utils) => {
                 marketPrice: 0,
             }
         }
-    
+
         const downloadImage = (image) => {
-    
+
             let assetName = `${ASSET_PATH}/${image.filename}`
-    
+
             return new Promise((resolve, reject) => {
                 fs.access(assetName, fs.constants.F_OK, (err) => {
                     if (err) {
@@ -171,8 +171,8 @@ module.exports = (config, utils) => {
                 })
             })
         }
-    
-        const parseImages = async(images) => {
+
+        const parseImages = async (images) => {
             let media_gallery = []
             let image = null
             if (images.meta.size > 0) {
@@ -195,30 +195,40 @@ module.exports = (config, utils) => {
                 thumbnail: image
             }
         }
-    
-        const setInitialStock = (row) => {
-            if (stocks[row.product.code]) {
-                products[row.product.id].stock.qty = stocks[row.product.code].stock
+
+        const setInitialStock = (productRow) => {
+            if (stocks[productRow.code]) {
+                products[productRow.id].stock.qty = stocks[productRow.code].stock
             }
         }
-    
-        const addNewProduct = async(row) => {
-            let product = await parseGeneralData(row, row.product.images)
 
-            let updated = new Date(row.updated.substring(0,9))
+        const newInterval = 1000 * 3600 * 24 * 30//one month
+
+        const addNewProduct = async (row, productRow) => {
+            let product = await parseGeneralData(row, productRow.images)
+
+            let updated = new Date(row.updated.substring(0, 10))
+
             let now = new Date()
 
             product.new = 0
-            if(now.getTime() - updated.getTime() < 1000*3600*24*30){
+            if (now.getTime() - updated.getTime() < newInterval) {
                 product.new = 1
+                console.log('New product', row.updated, now.getTime(), updated.getTime(), now.getTime() - updated.getTime(), newInterval)
             }
-            
+
+
             product.providerId = row.providerProductId
-            product.name = row.product.name
-            product.description = row.product.description
-            product.configurable_children = []
-            product.configurable_options = []
-            product.type_id = 'configurable'
+            product.name = productRow.name
+            product.description = productRow.description
+            product.type_id = 'simple'
+
+            if (now.variantsAmount > 0) {
+                product.configurable_children = []
+                product.configurable_options = []
+                product.type_id = 'configurable'
+            }
+
             product.category_ids = []
             product.category = []
             product.visibility = 4
@@ -227,28 +237,28 @@ module.exports = (config, utils) => {
             product.stock = {
                 is_in_stock: false
             }
-    
-            if (row.product.pathName.length > 0) {
-                if (indexedRows[row.product.pathName]) {
-                    product.category_ids.push(indexedRows[row.product.pathName].id)
-                    if (categories[indexedRows[row.product.pathName].id]) {
+
+            if (productRow.pathName.length > 0) {
+                if (indexedRows[productRow.pathName]) {
+                    product.category_ids.push(indexedRows[productRow.pathName].id)
+                    if (categories[indexedRows[productRow.pathName].id]) {
                         product.category.push({
-                            category_id: categories[indexedRows[row.product.pathName].id].id,
-                            name: categories[indexedRows[row.product.pathName].id].name,
-                            slug: categories[indexedRows[row.product.pathName].id].slug,
-                            path: categories[indexedRows[row.product.pathName].id].url_path,
+                            category_id: categories[indexedRows[productRow.pathName].id].id,
+                            name: categories[indexedRows[productRow.pathName].id].name,
+                            slug: categories[indexedRows[productRow.pathName].id].slug,
+                            path: categories[indexedRows[productRow.pathName].id].url_path,
                         })
                     } else {
-                        logger.error(`Category not found by ${row.product.pathName}`)
+                        logger.error(`Category not found by ${productRow.pathName}`)
                     }
                 } else {
-                    logger.error(`IndexedRow not found by ${row.product.pathName}`)
+                    logger.error(`IndexedRow not found by ${productRow.pathName}`)
                 }
             }
-    
+
             return product
         }
-    
+
         const addCountToCategory = (parentId, count, childrenId) => {
             if (categories[parentId].parent_id) {
                 addCountToCategory(categories[parentId].parent_id, count, parentId)
@@ -264,54 +274,65 @@ module.exports = (config, utils) => {
                 })
             }
         }
-    
-        const addProductsCountToCategory = (row, count) => {
+
+        const addProductsCountToCategory = (row, productRow, count) => {
             if (count > 0) {
-                products[row.product.id].category_ids.forEach(id => {
+                products[productRow.id].category_ids.forEach(id => {
                     addCountToCategory(id, count)
                 })
             }
         }
-    
-        const parseVariant = async(row) => {
-    
-            row.providerId = row.id
-            row.providerProductId = row.product.id
 
+        const fillIds = async (row, productRow) => {
+            row.providerId = row.id
+            row.providerProductId = productRow.id
             //set unique sku from variant id
             row.sku = row.id
-    
-            //set number id from string id
-            row.product.id = await numberId(row.product.id)
-    
+
+            if (row.product) {
+                //set number id from string id
+                row.product.id = await numberId(productRow.id)
+            }
             //variant id should be the same as product id
             row.id = await numberId(row.id)
-    
-            if (!products[row.product.id]) {
-                products[row.product.id] = await addNewProduct(row)
-                setInitialStock(row)
+        }
+
+        const parseVariant = async (row) => {
+
+            if (row.product.variantsAmount === 0) {
+                return
             }
-    
-            let qty = parseStock(row)
-    
+
+            await fillIds(row, row.product)
+
+            if (!products[row.product.id]) {
+                products[row.product.id] = await addNewProduct(row, row.product)
+                setInitialStock(row.product)
+            }
+
+            let qty = parseStock(row, row.product)
+
             let variant = await parseGeneralData(row, row.images)
             variant.qty = qty
-            
+
             const variantAttributes = await parseAttributes(row)
-    
+
             for (let i = 0; i < variantAttributes.length; i++) {
-    
+
                 let variantAttribute = variantAttributes[i]
-                    // const attributeCode = `attribute_${variantAttribute.id}`
+                // const attributeCode = `attribute_${variantAttribute.id}`
                 let attributeCode = slugify(variantAttribute.name)
-    
+
                 if (!products[row.product.id][`${attributeCode}_options`]) {
                     products[row.product.id][`${attributeCode}_options`] = []
                 }
                 products[row.product.id][`${attributeCode}_options`].push(variantAttribute.value)
-    
+
+                if (!products[row.product.id].configurable_options) {
+                    products[row.product.id].configurable_options = []
+                }
                 let attributeOption = products[row.product.id].configurable_options.find(option => option.attribute_code === attributeCode)
-    
+
                 if (!attributeOption) {
                     attributeOption = {
                         product_id: row.id,
@@ -324,32 +345,49 @@ module.exports = (config, utils) => {
                     }
                     products[row.product.id].configurable_options.push(attributeOption)
                 }
-    
+
                 if (!attributeOption.values.find(i => i.value_index === variantAttribute.value)) {
                     attributeOption.values.push({
                         value_index: variantAttribute.value,
                         label: variantAttribute.label,
                     })
                 }
-    
+
                 variant[attributeCode] = variantAttribute.value
                 if (products[row.product.id][attributeCode] === undefined) {
                     products[row.product.id][attributeCode] = null
                 }
             }
-    
+
             products[row.product.id].configurable_children.push(variant)
-    
+
         }
-    
-        await loader('https://online.moysklad.ru/api/remap/1.2/entity/variant?offse=0&limit=100&expand=product,images,product.images', 'variants', parseVariant)
-    
+
+        const parseProduct = async (row) => {
+
+            if (row.variantsCount === 0) {
+
+                await fillIds(row, row)
+
+                if (!products[row.id]) {
+                    products[row.id] = await addNewProduct(row, row)
+                    setInitialStock(row, row)
+                }
+
+                let qty = parseStock(row, row)
+                products[row.id].qty = qty
+            }
+        }
+
+        await loader('https://online.moysklad.ru/api/remap/1.2/entity/variant?offse=0&limit=100&expand=product,images,product.images&order=updated;desc', 'variants', parseVariant)
+        await loader('https://online.moysklad.ru/api/remap/1.2/entity/product?offse=0&limit=10&expand=images&order=updated;desc', 'products', parseProduct)
+
         return {
             products,
             attributes,
             categories
         }
-    
+
     }
 
     return variantsLoader
