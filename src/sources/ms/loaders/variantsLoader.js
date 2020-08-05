@@ -214,7 +214,6 @@ module.exports = (config, utils) => {
             product.new = 0
             if (now.getTime() - updated.getTime() < newInterval) {
                 product.new = 1
-                console.log('New product', row.updated, now.getTime(), updated.getTime(), now.getTime() - updated.getTime(), newInterval)
             }
 
 
