@@ -3,6 +3,8 @@ const utils = require('./utils')
 
 const elasticSearch = require('./targets/elasticSearch')(config, utils)
 const cartcl = require('./targets/cartcl')(config, utils)
+const file = require('./targets/file')(config, utils)
+
 const parser = require('./sources/ms/parser')(config, utils)
 
 const run = async () => {
@@ -10,14 +12,16 @@ const run = async () => {
 
     return Promise.all([
         elasticSearch.run(entities),
-        cartcl.run(entities)
+        cartcl.run(entities),
+        file.run(entities)
     ])
 }
 
 const purge = async () => {
     return Promise.all([
         elasticSearch.purge(),
-        cartcl.purge()
+        cartcl.purge(),
+        file.purge()
     ])
 }
 
