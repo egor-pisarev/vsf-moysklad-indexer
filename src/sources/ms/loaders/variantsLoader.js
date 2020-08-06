@@ -216,13 +216,12 @@ module.exports = (config, utils) => {
                 product.new = 1
             }
 
-
             product.providerId = row.providerProductId
             product.name = productRow.name
             product.description = productRow.description
             product.type_id = 'simple'
 
-            if (now.variantsAmount > 0) {
+            if (productRow.variantsAmount > 0) {
                 product.configurable_children = []
                 product.configurable_options = []
                 product.type_id = 'configurable'
