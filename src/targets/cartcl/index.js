@@ -23,7 +23,6 @@ module.exports = (config, utils) => {
             providerId,
             name,
             price,
-            type
         }
     }`, {
             updateProductInput: {
