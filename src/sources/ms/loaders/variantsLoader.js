@@ -15,6 +15,9 @@ module.exports = (config, utils) => {
         const products = {}
         const attributes = {}
 
+        // const attributeCodeGenerator = (characteristic) => slugify(characteristic.name)
+        const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
+
         const parseAttributes = async (row) => {
 
             let variantAttributes = []
@@ -28,7 +31,7 @@ module.exports = (config, utils) => {
 
                     let optionIndex = await numberId(`${characteristic.id}:${characteristic.value}`)
 
-                    let attributeCode = slugify(characteristic.name)
+                    let attributeCode = attributeCodeGenerator(characteristic)
 
                     //Add if attribute not exists
                     if (!attributes[characteristic.id]) {
@@ -108,7 +111,7 @@ module.exports = (config, utils) => {
                 type_id: 'configurable',
                 status: 1,
                 minimum: 1,
-                url_path: slugify(row.name),
+                // url_path: slugify(row.name),
                 created_at: udated,
                 updated_at: udated,
                 length: 0,
@@ -319,16 +322,22 @@ module.exports = (config, utils) => {
 
                 let variantAttribute = variantAttributes[i]
                 // const attributeCode = `attribute_${variantAttribute.id}`
-                let attributeCode = slugify(variantAttribute.name)
+                //let attributeCode = slugify(variantAttribute.name)
 
+                let attributeCode = attributeCodeGenerator(variantAttribute)
                 if (!products[row.product.id][`${attributeCode}_options`]) {
                     products[row.product.id][`${attributeCode}_options`] = []
                 }
-                products[row.product.id][`${attributeCode}_options`].push(variantAttribute.value)
+
+                if(products[row.product.id][`${attributeCode}_options`].indexOf(variantAttribute.value) < 0){
+                    products[row.product.id][`${attributeCode}_options`].push(variantAttribute.value)
+                }
 
                 if (!products[row.product.id].configurable_options) {
                     products[row.product.id].configurable_options = []
+                    products[row.product.id].type_id = 'configurable'
                 }
+
                 let attributeOption = products[row.product.id].configurable_options.find(option => option.attribute_code === attributeCode)
 
                 if (!attributeOption) {
