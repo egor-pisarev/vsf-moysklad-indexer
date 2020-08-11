@@ -33,7 +33,8 @@ const categoriesLoader = (config, utils) => {
             position: 1,
             is_active: true,
             children_data: [],
-            product_count: 0
+            product_count: 0,
+            meta_description: `Купить товары категории "${row.name}" в интернет магазине ${config.shopName}.`,
         }
 
         if (row.pathName) {

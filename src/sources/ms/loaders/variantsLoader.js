@@ -205,6 +205,10 @@ module.exports = (config, utils) => {
             }
         }
 
+        const generateProductDescription = (productRow) => {
+            return `Купить товар "${productRow.name}" по низкой цене в интернет магазине ${config.shopName}.`
+        }
+
         const newInterval = 1000 * 3600 * 24 * 30//one month
 
         const addNewProduct = async (row, productRow) => {
@@ -223,6 +227,7 @@ module.exports = (config, utils) => {
             product.name = productRow.name
             product.description = productRow.description
             product.type_id = 'simple'
+            product.meta_description = productRow.description && productRow.description.length>0?productRow.description.substring(0,140):generateProductDescription(productRow)
 
             if (productRow.variantsAmount > 0) {
                 product.configurable_children = []
