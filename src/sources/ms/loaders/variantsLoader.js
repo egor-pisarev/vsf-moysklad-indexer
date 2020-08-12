@@ -15,8 +15,8 @@ module.exports = (config, utils) => {
         const products = {}
         const attributes = {}
 
-        // const attributeCodeGenerator = (characteristic) => slugify(characteristic.name)
-        const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
+        const attributeCodeGenerator = (characteristic) => `attribute_${slugify(characteristic.name)}`
+        //const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
 
         const parseAttributes = async (row) => {
 
