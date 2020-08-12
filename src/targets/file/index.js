@@ -15,20 +15,20 @@ module.exports = (config, utils) => {
             i18n = `${i18n}
 "${entities.attribute[name].attribute_code}_filter","${entities.attribute[name].label}"`
         })
-        fs.writeFile(`${RESULTS_PATH}/i18n.json`, i18n, () => console.log(`i18n wrote`))
+        fs.writeFile(`${RESULTS_PATH}/i18n.csv`, i18n, () => console.log(`i18n wrote`))
 
         //filterAggregationSize
         let filterAggregationSize = {}
         Object.keys(entities.attribute).map(name => {
             filterAggregationSize[`${entities.attribute[name].attribute_code}`] = entities.attribute[name].options.length
         })
-        fs.writeFile(`${CONFIG_PATH}/filterAggregationSize.json`, JSON.stringify(filterAggregationSize), () => console.log(`filterAggregationSize wrote`))
+        fs.writeFile(`${RESULTS_PATH}/filterAggregationSize.json`, JSON.stringify(filterAggregationSize), () => console.log(`filterAggregationSize wrote`))
 
         let defaultFilters = []
         defaultFilters.push("price")
         defaultFilters.push("stock.is_in_stock")
         Object.keys(entities.attribute).map(name=>defaultFilters.push(`${entities.attribute[name].attribute_code}`))
-        fs.writeFile(`${CONFIG_PATH}/defaultFilters.json`, JSON.stringify(defaultFilters), () => console.log(`Config file wrote to ${CONFIG_PATH}`))
+        fs.writeFile(`${RESULTS_PATH}/defaultFilters.json`, JSON.stringify(defaultFilters), () => console.log(`Config file wrote to ${CONFIG_PATH}`))
 
         // fs.writeFile(`${RESULTS_PATH}/attributes-ids.json`, JSON.stringify(Object.keys(entities.attribute)), () => console.log(`Attributes ids wrote`))
         // fs.writeFile(`${RESULTS_PATH}/attributes-codes.json`, JSON.stringify(Object.keys(entities.attribute).map(attr=>`attr_${attr}`)), () => console.log(`Attributes ids wrote`))
