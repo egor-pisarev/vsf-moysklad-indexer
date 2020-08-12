@@ -15,8 +15,9 @@ module.exports = (config, utils) => {
         const products = {}
         const attributes = {}
 
-        const attributeCodeGenerator = (characteristic) => `attribute_${slugify(characteristic.name)}`
-        //const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
+        //const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.providerId}`
+        //const attributeCodeGenerator = (characteristic) => `attribute_${slugify(characteristic.name)}`
+        const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
 
         const parseAttributes = async (row) => {
 
@@ -27,6 +28,7 @@ module.exports = (config, utils) => {
                 for (let i = 0; i < row.characteristics.length; i++) {
                     let characteristic = row.characteristics[i]
 
+                    characteristic.providerId = characteristic.id
                     characteristic.id = await numberId(characteristic.id)
 
                     let optionIndex = await numberId(`${characteristic.id}:${characteristic.value}`)
@@ -66,6 +68,7 @@ module.exports = (config, utils) => {
                     //set attribute to variant
                     variantAttributes.push({
                         id: characteristic.id,
+                        providerId: characteristic.providerId,
                         label: characteristic.value,
                         value: optionIndex,
                         name: characteristic.name
