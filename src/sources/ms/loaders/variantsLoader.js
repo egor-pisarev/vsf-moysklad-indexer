@@ -230,7 +230,7 @@ module.exports = (config, utils) => {
             product.name = productRow.name
             product.description = productRow.description
             product.type_id = 'simple'
-            product.meta_description = productRow.description && productRow.description.length>0?productRow.description.substring(0,140):generateProductDescription(productRow)
+            product.meta_description = productRow.description && productRow.description.length > 0 ? productRow.description.substring(0, 140) : generateProductDescription(productRow)
 
             if (productRow.variantsAmount > 0) {
                 product.configurable_children = []
@@ -324,6 +324,8 @@ module.exports = (config, utils) => {
             let variant = await parseGeneralData(row, row.images)
             variant.qty = qty
 
+            variant.is_in_stock = qty > 0 ? 1 : 0
+
             const variantAttributes = await parseAttributes(row)
 
             for (let i = 0; i < variantAttributes.length; i++) {
@@ -337,7 +339,7 @@ module.exports = (config, utils) => {
                     products[row.product.id][`${attributeCode}_options`] = []
                 }
 
-                if(products[row.product.id][`${attributeCode}_options`].indexOf(variantAttribute.value) < 0){
+                if (products[row.product.id][`${attributeCode}_options`].indexOf(variantAttribute.value) < 0) {
                     products[row.product.id][`${attributeCode}_options`].push(variantAttribute.value)
                 }
 
