@@ -26,7 +26,7 @@ module.exports = (config, utils) => {
 
         let defaultFilters = []
         defaultFilters.push("price")
-        defaultFilters.push("stock.is_in_stock")
+        defaultFilters.push("configurable_children.is_in_stock_filter")
         Object.keys(entities.attribute).map(name=>defaultFilters.push(`${entities.attribute[name].attribute_code}`))
         fs.writeFile(`${RESULTS_PATH}/defaultFilters.json`, JSON.stringify(defaultFilters), () => console.log(`Config file wrote to ${CONFIG_PATH}`))
 
