@@ -321,6 +321,10 @@ module.exports = (config, utils) => {
 
             let qty = parseStock(row, row.product)
 
+            if(qty === 0){
+                return;
+            }
+
             let variant = await parseGeneralData(row, row.images)
             variant.qty = qty
 
