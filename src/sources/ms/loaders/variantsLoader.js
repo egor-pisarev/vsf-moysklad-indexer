@@ -81,6 +81,10 @@ module.exports = (config, utils) => {
             return variantAttributes
         }
 
+        const parseQty = (row, productRow) => {
+            return stocks[row.providerId] && stocks[row.providerId].stock > 0? stocks[row.providerId].stock: 0
+        }
+
         const parseStock = (row, productRow) => {
 
             // if (stocks[row.code]) {
@@ -314,6 +318,10 @@ module.exports = (config, utils) => {
 
             await fillIds(row, row.product)
 
+            if(parseQty(row, row.product) === 0){
+                return;
+            }
+
             if (!products[row.product.id]) {
                 products[row.product.id] = await addNewProduct(row, row.product)
                 setInitialStock(row.product)
@@ -394,12 +402,20 @@ module.exports = (config, utils) => {
 
                 await fillIds(row, row)
 
+                console.log(parseQty(row, row))
+
+                if(parseQty(row, row) === 0){
+                    console.log('Skip')
+                    return;
+                }
+
                 if (!products[row.id]) {
                     products[row.id] = await addNewProduct(row, row)
                     setInitialStock(row, row)
                 }
 
                 let qty = parseStock(row, row)
+              
                 products[row.id].qty = qty
             }
         }
