@@ -402,10 +402,7 @@ module.exports = (config, utils) => {
 
                 await fillIds(row, row)
 
-                console.log(parseQty(row, row))
-
                 if(parseQty(row, row) === 0){
-                    console.log('Skip')
                     return;
                 }
 

@@ -5,7 +5,8 @@ const elasticSearch = require('./targets/elasticSearch')(config, utils)
 const cartcl = require('./targets/cartcl')(config, utils)
 const file = require('./targets/file')(config, utils)
 
-const parser = require('./sources/ms/parser')(config, utils)
+const msParser = require('./sources/ms/parser')(config, utils)
+const wpParser = require('./sources/wp/parser')(config, utils)
 
 const run = async () => {
 
@@ -20,7 +21,16 @@ const run = async () => {
 
     await utils.redis.set(isRunKey, '1')
 
-    const entities = await parser()
+    let entities = {}
+
+    let parsersResults = await Promise.all([
+        msParser(),
+        wpParser(),
+    ])
+
+    parsersResults.map(entitiesItem => {
+        entities = {...entities, ...entitiesItem}
+    })
 
     const result = await Promise.all([
         elasticSearch.run(entities),

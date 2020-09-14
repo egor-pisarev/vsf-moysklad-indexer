@@ -1,122 +1,122 @@
 {
-    "properties": {
+  "properties": {
+    "children_data": {
+      "properties": {
         "children_data": {
-            "properties": {
+          "properties": {
+            "children_data": {
+              "properties": {
                 "children_data": {
-                    "properties": {
-                        "children_data": {
-                            "properties": {
-                                "children_data": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "text",
-                                            "fields": {
-                                                "keyword": {
-                                                    "type": "keyword",
-                                                    "ignore_above": 256
-                                                }
-                                            }
-                                        },
-                                        "path": {
-                                            "type": "text",
-                                            "fields": {
-                                                "keyword": {
-                                                    "type": "keyword",
-                                                    "ignore_above": 256
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "id": {
-                                    "type": "text",
-                                    "fields": {
-                                        "keyword": {
-                                            "type": "keyword",
-                                            "ignore_above": 256
-                                        }
-                                    }
-                                },
-                                "path": {
-                                    "type": "text",
-                                    "fields": {
-                                        "keyword": {
-                                            "type": "keyword",
-                                            "ignore_above": 256
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "id": {
-                            "type": "text",
-                            "fields": {
-                                "keyword": {
-                                    "type": "keyword",
-                                    "ignore_above": 256
-                                }
-                            }
+                  "properties": {
+                    "id": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
                         }
+                      }
+                    },
+                    "path": {
+                      "type": "text",
+                      "fields": {
+                        "keyword": {
+                          "type": "keyword",
+                          "ignore_above": 256
+                        }
+                      }
                     }
+                  }
                 },
                 "id": {
-                    "type": "text",
-                    "fields": {
-                        "keyword": {
-                            "type": "keyword",
-                            "ignore_above": 256
-                        }
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
                     }
+                  }
+                },
+                "path": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword",
+                      "ignore_above": 256
+                    }
+                  }
                 }
+              }
+            },
+            "id": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
             }
+          }
         },
         "id": {
-            "type": "keyword"
-        },
-        "is_active": {
-            "type": "boolean"
-        },
-        "level": {
-            "type": "long"
-        },
-        "name": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                }
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
             }
-        },
-        "path": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                }
-            }
-        },
-        "pathName": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                }
-            }
-        },
-        "position": {
-            "type": "long"
-        },
-        "product_count": {
-            "type": "long"
-        },
-        "url_key": {
-            "type": "keyword"
-        },
-        "url_path": {
-            "type": "keyword"
+          }
         }
+      }
+    },
+    "id": {
+      "type": "keyword"
+    },
+    "is_active": {
+      "type": "boolean"
+    },
+    "level": {
+      "type": "long"
+    },
+    "name": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "path": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "pathName": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "position": {
+      "type": "long"
+    },
+    "product_count": {
+      "type": "long"
+    },
+    "url_key": {
+      "type": "keyword"
+    },
+    "url_path": {
+      "type": "keyword"
     }
+  }
 }

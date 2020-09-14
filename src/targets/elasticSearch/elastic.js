@@ -143,6 +143,21 @@ async function putMappings(db, indexName, next) {
         throw new Error(err2)
     })
 
+    await db.indices.putMapping({
+        index: indexName,
+        type: "cms_page",
+        body: {
+            properties: {
+                page_id: { type: "integer" },
+                identifier: { type: "keyword" }
+            }
+        }
+    }).then(res2 => {
+        console.dir(res2, { depth: null, colors: true })
+    }).catch(err2 => {
+        throw new Error(err2)
+    })
+
     // await db.indices.putMapping({
     //     index: indexName,
     //     type: "category",
