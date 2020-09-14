@@ -1,9 +1,19 @@
 {
     "elasticsearch": {
         "host": "localhost:9200",
-        "indexName": "vue_storefront_catalog"
+        "indexName": "klushki22_catalog"
     },
     "cartcl": {
-        "url": "http://localhost:4000/graphql"
-    }
+        "url": "http://localhost:4000/graphql",
+        "email": "",
+        "password": ""
+    },
+    "fileTarget": {
+        "configPath": "../front/config",
+        "resultPath": "var/results"
+    },
+    "wordpress": {
+        "url": "https://xn--22-vlchaf5g1b.xn--p1ai/wp"
+    },
+    "shopName": "клюшки22.рф"
 }
