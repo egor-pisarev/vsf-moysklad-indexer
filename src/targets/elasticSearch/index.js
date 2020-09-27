@@ -10,7 +10,7 @@ let INDEX_META_DATA
 
 const INDEX_META_PATH = path.join(__dirname, '../../../var/indexMetadata.json')
 
-const entitiesTypes = ['product', 'attribute', 'category', 'cms_page']
+const entitiesTypes = ['product', 'attribute', 'category', 'cms_page', 'archived_product']
 
 module.exports = (config, utils) => {
 

@@ -7,12 +7,12 @@ module.exports = (config, utils) => {
 
     const { categories, indexedRows } = await categoriesLoader()
     const { stocks } = await stocksLoader()
-    const { products, attributes } = await variantsLoader({ indexedRows, categories, stocks })
+    const { products, archived_products, attributes } = await variantsLoader({ indexedRows, categories, stocks })
     const { customers } = await customersLoader()
 
     //fs.writeFile(`${__dirname}/../../../var/results/products.json`, JSON.stringify(products), () => console.log('Products results wrote'))
 
-    return { category: categories, product: products, attribute: attributes, customer: customers }
+    return { category: categories, product: products, archived_product: archived_products, attribute: attributes, customer: customers }
   }
 
 }

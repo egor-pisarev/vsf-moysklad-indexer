@@ -13,6 +13,8 @@ module.exports = (config, utils) => {
     const variantsLoader = async ({ indexedRows, categories, stocks }) => {
 
         const products = {}
+        const archived_products = {}
+
         const attributes = {}
 
         //const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.providerId}`
@@ -96,9 +98,9 @@ module.exports = (config, utils) => {
             if (stocks[row.providerId] && stocks[row.providerId].stock > 0) {
                 products[productRow.id].stock.is_in_stock = true
                 qty = stocks[row.providerId].stock
+                addProductsCountToCategory(row, productRow, stocks[row.providerId] ? stocks[row.providerId].stock : 0)
             }
 
-            addProductsCountToCategory(row, productRow, stocks[row.providerId] ? stocks[row.providerId].stock : 0)
             return qty
         }
 
@@ -206,10 +208,11 @@ module.exports = (config, utils) => {
             }
         }
 
-        const setInitialStock = (productRow) => {
+        const setInitialStock = (product, productRow) => {
             if (stocks[productRow.code]) {
-                products[productRow.id].stock.qty = stocks[productRow.code].stock
+                product.stock.qty = stocks[productRow.code].stock
             }
+            return product
         }
 
         const generateProductDescription = (productRow) => {
@@ -319,12 +322,18 @@ module.exports = (config, utils) => {
             await fillIds(row, row.product)
 
             if(parseQty(row, row.product) === 0){
+
+                if (!archived_products[row.product.id]) {
+                    archived_products[row.product.id] = await addNewProduct(row, row.product)
+                    archived_products[row.product.id] = setInitialStock(archived_products[row.product.id], row.product)
+                }
+
                 return;
             }
 
             if (!products[row.product.id]) {
                 products[row.product.id] = await addNewProduct(row, row.product)
-                setInitialStock(row.product)
+                products[row.product.id] = setInitialStock(products[row.product.id], row.product)
             }
 
             let qty = parseStock(row, row.product)
@@ -423,7 +432,8 @@ module.exports = (config, utils) => {
         return {
             products,
             attributes,
-            categories
+            categories,
+            archived_products
         }
 
     }
