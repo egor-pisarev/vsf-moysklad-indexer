@@ -16,7 +16,7 @@ module.exports = (config, utils) => {
         const attributes = {}
 
         //const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.providerId}`
-        //const attributeCodeGenerator = (characteristic) => `attribute_${slugify(characteristic.name)}`
+        //const attributeCodeGenerator = (characteristic) => `attr_${slugify(characteristic.name)}`
         const attributeCodeGenerator = (characteristic) => `attribute_${characteristic.id}`
 
         const parseAttributes = async (row) => {
@@ -82,7 +82,7 @@ module.exports = (config, utils) => {
         }
 
         const parseQty = (row, productRow) => {
-            return stocks[row.providerId] && stocks[row.providerId].stock > 0? stocks[row.providerId].stock: 0
+            return stocks[row.providerId] && stocks[row.providerId].stock > 0 ? stocks[row.providerId].stock : 0
         }
 
         const parseStock = (row, productRow) => {
@@ -118,7 +118,6 @@ module.exports = (config, utils) => {
                 type_id: 'configurable',
                 status: 1,
                 minimum: 1,
-                // url_path: slugify(row.name),
                 created_at: udated,
                 updated_at: udated,
                 length: 0,
@@ -244,6 +243,7 @@ module.exports = (config, utils) => {
 
             product.category_ids = []
             product.category = []
+            product.url_path = []
             product.visibility = 4
             product.qty = 0
             product.tax_class_id = 0
@@ -261,6 +261,7 @@ module.exports = (config, utils) => {
                             slug: categories[indexedRows[productRow.pathName].id].slug,
                             path: categories[indexedRows[productRow.pathName].id].url_path,
                         })
+
                     } else {
                         logger.error(`Category not found by ${productRow.pathName}`)
                     }
@@ -318,9 +319,9 @@ module.exports = (config, utils) => {
 
             await fillIds(row, row.product)
 
-            if(parseQty(row, row.product) === 0){
-                return;
-            }
+            // if (parseQty(row, row.product) === 0) {
+            //     return;
+            // }
 
             if (!products[row.product.id]) {
                 products[row.product.id] = await addNewProduct(row, row.product)
@@ -329,9 +330,9 @@ module.exports = (config, utils) => {
 
             let qty = parseStock(row, row.product)
 
-            if(qty === 0){
-                return;
-            }
+            // if (qty === 0) {
+            //     return;
+            // }
 
             let variant = await parseGeneralData(row, row.images)
             variant.qty = qty
@@ -392,7 +393,9 @@ module.exports = (config, utils) => {
                 products[row.product.id].configurable_children = []
             }
 
-            products[row.product.id].configurable_children.push(variant)
+            if (variant.is_in_stock === 1) {
+                products[row.product.id].configurable_children.push(variant)
+            }
 
         }
 
@@ -402,9 +405,9 @@ module.exports = (config, utils) => {
 
                 await fillIds(row, row)
 
-                if(parseQty(row, row) === 0){
-                    return;
-                }
+                // if (parseQty(row, row) === 0) {
+                //     return;
+                // }
 
                 if (!products[row.id]) {
                     products[row.id] = await addNewProduct(row, row)
@@ -412,7 +415,7 @@ module.exports = (config, utils) => {
                 }
 
                 let qty = parseStock(row, row)
-              
+
                 products[row.id].qty = qty
             }
         }

@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const jsonFile = require('jsonfile')
 
-const putMappings = require('./elastic').putMappings
+const { putMappings } = require('./putMappings')
 
 let INDEX_VERSION = 1
 let INDEX_META_DATA
@@ -41,7 +41,6 @@ module.exports = (config, utils) => {
     let indexMeta = await readIndexMeta()
 
     return new Promise((resolve, reject) => {
-
       indexMeta.version++
       INDEX_VERSION = indexMeta.version
       indexMeta.updated = new Date()
@@ -59,19 +58,30 @@ module.exports = (config, utils) => {
 
     const { version, updated } = await updateMetaFile()
 
-    const result = await client.indices.create({ index: `${config.elasticsearch.indexName}_${version}` })
+    for (let i = 0; i < entitiesTypes.length; i++) {
 
-    console.log('Index Created', result)
-    console.log('** NEW INDEX VERSION', version, updated)
+      const index = `${config.elasticsearch.indexName}_${entitiesTypes[i]}_${version}`
 
-    await putMappings(client, `${config.elasticsearch.indexName}_${version}`, () => { })
+      const result = await client.indices.create({
+        index
+      })
+
+      console.log('Index Created', result)
+      console.log('** NEW INDEX VERSION', version, updated)
+
+    }
+
+    await putMappings(client, config.elasticsearch.indexName, version)
   }
 
-  async function deleteOldIndex(version) {
+  async function deleteOldIndex(indexName) {
+
     return client.indices.delete({
-      index: `${config.elasticsearch.indexName}_${version}`
+      index: indexName,
     }).then((result) => {
-      console.log('Index deleted', result)
+
+      console.log(`Index ${indexName} deleted`, result)
+
     }).catch((err) => {
       console.log(err)
       console.log('Index does not exst')
@@ -80,26 +90,41 @@ module.exports = (config, utils) => {
 
   async function publishTempIndex() {
 
-    try {
-      console.log('Public index alias deleted', await client.indices.deleteAlias({
-        index: `${config.elasticsearch.indexName}_${INDEX_VERSION - 1}`,
-        name: config.elasticsearch.indexName
-      }))
-    } catch (err) {
-      console.log('Public index alias does not exists', err.message)
+    for (let i = 0; i < entitiesTypes.length; i++) {
+
+      const type = entitiesTypes[i]
+      const indexName = `${config.elasticsearch.indexName}_${type}`
+
+      try {
+
+        await client.indices.deleteAlias({
+          index: `${indexName}_${INDEX_VERSION - 1}`,
+          name: indexName
+        })
+
+        console.log('Public index alias deleted')
+
+      } catch (err) {
+        console.log('Public index alias does not exists', err.message)
+      }
+
+      await client.indices.putAlias({
+        index: `${indexName}_${INDEX_VERSION}`,
+        name: indexName
+      })
+
+      console.log('Index alias created')
+
+      if (INDEX_VERSION > 1) {
+        await deleteOldIndex(`${indexName}_${INDEX_VERSION - 1}`)
+      }
     }
 
-    console.log('Index alias created', await client.indices.putAlias({ index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`, name: config.elasticsearch.indexName }))
-
-    if (INDEX_VERSION > 1) {
-      await deleteOldIndex(INDEX_VERSION - 1)
-    }
   }
 
   async function storeResult({ result, entityType }) {
     return client.index({
-      index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`,
-      type: entityType,
+      index: `${config.elasticsearch.indexName}_${entityType}_${INDEX_VERSION}`,
       id: result.id,
       body: result
     }).catch(e => {
@@ -141,9 +166,11 @@ module.exports = (config, utils) => {
     console.log('Import entities')
 
     for (let entityType in entities) {
+
       if (entitiesTypes.indexOf(entityType) < 0) continue
       fs.writeFile(`${__dirname}/../var/log/PARSET_${entityType}.json`, JSON.stringify(entities[entityType]), () => console.log(`Log added to ${entityType}`))
       await importListOf({ entityType, entities: entities[entityType] })
+
     }
 
     console.log('Publish items')

@@ -5,7 +5,7 @@ module.exports = (config) => {
     const client = new es.Client({
         host: config.elasticsearch.host,
         log: 'error',
-        apiVersion: '5.5',
+        apiVersion: '7.3',
         requestTimeout: 10000
     })
 
