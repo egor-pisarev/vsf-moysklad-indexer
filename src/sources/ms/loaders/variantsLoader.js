@@ -393,9 +393,9 @@ module.exports = (config, utils) => {
                 products[row.product.id].configurable_children = []
             }
 
-            if (variant.is_in_stock === 1) {
+            //if (variant.is_in_stock === 1) {
                 products[row.product.id].configurable_children.push(variant)
-            }
+            //}
 
         }
 
