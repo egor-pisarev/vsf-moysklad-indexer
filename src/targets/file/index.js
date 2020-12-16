@@ -13,7 +13,7 @@ module.exports = (config, utils) => {
 
         Object.keys(entities.attribute).map(name => {
             i18n = `${i18n}
-"${entities.attribute[name].attribute_code}_filter","${entities.attribute[name].label}"`
+"configurable_children.${entities.attribute[name].attribute_code}_filter","${entities.attribute[name].label}"`
         })
         fs.writeFile(`${RESULTS_PATH}/i18n.csv`, i18n, () => console.log(`i18n wrote`))
 
@@ -27,7 +27,7 @@ module.exports = (config, utils) => {
         let defaultFilters = []
         defaultFilters.push("price")
         //defaultFilters.push("is_in_stock")
-        Object.keys(entities.attribute).map(name=>defaultFilters.push(`${entities.attribute[name].attribute_code}`))
+        Object.keys(entities.attribute).map(name=>defaultFilters.push(`configurable_children.${entities.attribute[name].attribute_code}`))
         fs.writeFile(`${RESULTS_PATH}/defaultFilters.json`, JSON.stringify(defaultFilters), () => console.log(`Config file wrote to ${CONFIG_PATH}`))
 
         // fs.writeFile(`${RESULTS_PATH}/attributes-ids.json`, JSON.stringify(Object.keys(entities.attribute)), () => console.log(`Attributes ids wrote`))
