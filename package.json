@@ -10,8 +10,10 @@
         "axios": "^0.19.2",
         "axios-rate-limit": "^1.2.1",
         "dotenv": "^8.2.0",
+        "easyvk": "^2.8.2",
         "elasticsearch": "^16.7.1",
         "file-saver": "^2.0.2",
+        "form-data": "^3.0.0",
         "graphql-client": "^2.0.1",
         "image-downloader": "^4.0.1",
         "isomorphic-fetch": "^2.2.1",
@@ -21,6 +23,7 @@
         "moysklad-extension-queue": "^0.2.0",
         "node-fetch": "^2.6.0",
         "redis": "^3.0.2",
+        "restler": "^3.4.0",
         "winston": "^3.3.3"
     },
     "devDependencies": {},
