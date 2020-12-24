@@ -417,6 +417,14 @@ module.exports = (config, utils) => {
                 let qty = parseStock(row, row)
 
                 products[row.id].qty = qty
+
+                products[row.id].configurable_children = [
+                    {
+                        ...products[row.id],
+                        is_in_stock: qty > 0?1:0,
+
+                    }
+                ]
             }
         }
 
