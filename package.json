@@ -18,7 +18,7 @@
         "image-downloader": "^4.0.1",
         "isomorphic-fetch": "^2.2.1",
         "jsonfile": "^6.0.1",
-        "lodash": "^4.17.17",
+        "lodash": "^4.17.19",
         "moysklad": "^0.7.2",
         "moysklad-extension-queue": "^0.2.0",
         "node-fetch": "^2.6.0",
