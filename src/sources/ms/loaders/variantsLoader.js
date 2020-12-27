@@ -339,6 +339,10 @@ module.exports = (config, utils) => {
 
             variant.is_in_stock = qty > 0 ? 1 : 0
 
+            if(variant.is_in_stock === 0){
+                return;
+            }
+
             const variantAttributes = await parseAttributes(row)
 
             for (let i = 0; i < variantAttributes.length; i++) {
