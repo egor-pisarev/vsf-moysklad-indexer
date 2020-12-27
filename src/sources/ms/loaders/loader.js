@@ -7,15 +7,15 @@ module.exports = (config) => {
 
     const load = async (href, key) => {
 
-        let value
-        if (process.env.USE_CACHE) {
+        let value = false
+        if (process.env.USE_CACHE === true) {
             value = await redis.get(`${key}`)
         }
 
         if (!value) {
             logger.info(`Load from API ${href}`)
             let { data } = await client.get(href)
-            if (process.env.USE_CACHE) {
+            if (process.env.USE_CACHE === true) {
                 await redis.set(`${key}`, JSON.stringify(data))
             }
             return data

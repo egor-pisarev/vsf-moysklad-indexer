@@ -20,7 +20,7 @@ module.exports = (config, utils) => {
         //filterAggregationSize
         let filterAggregationSize = {}
         Object.keys(entities.attribute).map(name => {
-            filterAggregationSize[`${entities.attribute[name].attribute_code}`] = entities.attribute[name].options.length
+            filterAggregationSize[`configurable_children.${entities.attribute[name].attribute_code}`] = entities.attribute[name].options.length
         })
         fs.writeFile(`${RESULTS_PATH}/filterAggregationSize.json`, JSON.stringify(filterAggregationSize), () => console.log(`filterAggregationSize wrote`))
 
