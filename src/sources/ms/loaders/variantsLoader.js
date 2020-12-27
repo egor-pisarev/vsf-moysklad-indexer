@@ -422,7 +422,7 @@ module.exports = (config, utils) => {
                     {
                         ...products[row.id],
                         is_in_stock: qty > 0?1:0,
-
+                        image: null,
                     }
                 ]
             }
