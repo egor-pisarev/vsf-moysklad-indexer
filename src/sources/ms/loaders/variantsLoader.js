@@ -328,6 +328,8 @@ module.exports = (config, utils) => {
                 setInitialStock(row.product)
             }
 
+            products[row.product.id].msType = 'variant'
+
             let qty = parseStock(row, row.product)
 
             // if (qty === 0) {
@@ -421,6 +423,7 @@ module.exports = (config, utils) => {
                 let qty = parseStock(row, row)
 
                 products[row.id].qty = qty
+                products[row.id].msType = 'product'
 
                 products[row.id].configurable_children = [
                     {

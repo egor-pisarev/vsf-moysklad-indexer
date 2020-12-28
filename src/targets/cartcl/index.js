@@ -45,7 +45,7 @@ module.exports = (config, utils) => {
 
                 for (let j in element.configurable_children) {
                     let child = element.configurable_children[j]
-                    let result = await loadProduct(child, 'configurable')
+                    let result = await loadProduct(child, element.msType === 'variant' ? 'configurable' : 'simple')
                     utils.logger.info(`Configurable product updated ${result.updateProduct.providerId}`)
                 }
 
