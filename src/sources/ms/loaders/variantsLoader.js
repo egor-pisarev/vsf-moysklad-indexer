@@ -189,7 +189,7 @@ module.exports = (config, utils) => {
                     let image = images.rows[i]
                     await downloadImage(image)
                     media_gallery.push({
-                        image: `/${image.filename}`,
+                        image: `/img/600/744/resize/${image.filename}`,
                         pos: i,
                         typ: 'image',
                         lab: null,
