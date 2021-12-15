@@ -7,7 +7,7 @@ module.exports = (config) => {
 
     const load = async (href, key) => {
 
-        let value = false
+        let value = null
         if (process.env.USE_CACHE === true) {
             value = await redis.get(`${key}`)
         }
@@ -20,8 +20,7 @@ module.exports = (config) => {
             }
             return data
         }
-        //fs.writeFile(`${__dirname}/../../../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
-
+       // fs.writeFile(`${__dirname}/../../../../var/log/${key}.json`, value, () => console.log(`${key} wrote`))
         return JSON.parse(value)
     }
 

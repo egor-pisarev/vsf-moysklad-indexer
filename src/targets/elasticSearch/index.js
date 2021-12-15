@@ -168,7 +168,7 @@ module.exports = (config, utils) => {
     for (let entityType in entities) {
 
       if (entitiesTypes.indexOf(entityType) < 0) continue
-      fs.writeFile(`${__dirname}/../var/log/PARSET_${entityType}.json`, JSON.stringify(entities[entityType]), () => console.log(`Log added to ${entityType}`))
+      //fs.writeFile(`${__dirname}/../var/log/PARSET_${entityType}.json`, JSON.stringify(entities[entityType]), () => console.log(`Log added to ${entityType}`))
       await importListOf({ entityType, entities: entities[entityType] })
 
     }
