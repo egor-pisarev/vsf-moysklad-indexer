@@ -6,11 +6,11 @@ module.exports = (config) => {
         host: config.elasticsearch.host,
         log: 'error',
         apiVersion: '7.3',
-        requestTimeout: 10000
+        requestTimeout: config.elasticsearch.requestTimeout,
     })
 
     return {
         client
     }
-    
+
 }
