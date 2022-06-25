@@ -21,7 +21,7 @@
         "lodash": "^4.17.17",
         "moysklad": "^0.7.2",
         "moysklad-extension-queue": "^0.2.0",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^2.6.7",
         "redis": "^3.0.2",
         "restler": "^3.4.0",
         "winston": "^3.3.3"
